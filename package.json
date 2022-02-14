@@ -1,0 +1,30 @@
+{
+  "name": "rssi_data_plot",
+  "version": "1.0.0",
+  "description": "plots data of rssi values",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "keywords": [
+    "ble",
+    "plot",
+    "rssi"
+  ],
+  "author": "Philipp Wandel",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^7.3.0",
+    "localtunnel": "^2.0.2",
+    "ws": "^8.5.0"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.1.0",
+    "@types/live-server": "^1.2.1",
+    "@types/localtunnel": "^2.0.1",
+    "@types/ws": "^8.2.2",
+    "live-server": "^1.2.1",
+    "typescript": "^4.5.5"
+  }
+}

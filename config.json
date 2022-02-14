@@ -1,0 +1,28 @@
+{
+    "coordinates": {
+        "left_x": "0",
+        "right_x": "2000",
+        "upper_y": "1000",
+        "lower_y": "0"
+    },
+    "measurements": {
+        "quantity": "30",
+        "time_per_scan": "200"
+    },
+    "datasets": {
+        "dataset1": {
+            "fileName": "data.json",
+            "algorithm": "none",
+            "type": "rawdata",
+            "color": "rgba(0,255,0,1)"
+        },
+        "dataset2": {
+            "fileName": "data.json",
+            "algorithm": "logdpl",
+            "type": "rawdata",
+            "color": "rgba(255,0,255,0.2)"
+        }
+    },
+    "pl_exp": "2.25",
+    "port": "3031"
+}
