@@ -4,22 +4,22 @@ This tool is meant to visualize measurement-data of RSSI based systems. A device
 A BLE-application which provides the correct data-format can be found at [BleBeacon](https://pages.github.com/TawsTM). You can also visualize existing data files.
 
 ## Installation
+
+To use this tool you need [Node.js](https://nodejs.org) installed on your machine. Go to the project folder and use
+
 ```
 npm install
-tsc -b
+npm run build
 ```
+
+in your console to install and build the tool.
 
 ## Usage
+
+To start the Server for measurements and displaying data, run
+
 ```
 npm start
-```
-
-## Data Files
-
-Data files should always be .json-files with this data structure:
-
-```
-[[xValue-1, yValue-1], [xValue-2, yValue-2], ..., [xValue-N, yValue-N]]
 ```
 
 ## Config
@@ -43,10 +43,38 @@ You can change the settings of the tool in the config.json:
             "algorithm": "none",                    *specifies the algorithm for linear representation: 'friis', 'none'*
             "type": "rawdata",                      *specifies how the data is displayed: 'rawdata', 'average', 'line*
             "color": "rgba(0,0,0,0.2)"              *specifies the color in which the datapoints are presented*
-        }
+        },
         ...
     },
     "pl_exp": "2.25",                               *specifies the path loss exponent that should be adjusted to the surroundings*
     "port": "8181"                                  *specifies the Port for visual presentation. Defaults to 8181*
+}
+```
+
+## Data Files
+
+Data files should always be .json-files with this data structure:
+
+```
+[[xValue-1, yValue-1], [xValue-2, yValue-2], ..., [xValue-N, yValue-N]]
+```
+
+## Take Measurements
+
+You need to connect a device to the server to take measurements. Once the device is connected, you can type the real distance of the measurement in centimeters into the console. The measurement will start automatically.
+
+## Device Input
+
+If you choose to send data from your own application to the server, your data must be a json-String and match the following structure:
+```
+{
+    "id": "000000",             *The id of the sending device*
+    "list": [                   *A list of scanned devices for rssi-values*
+        {
+        "id": "000001",         *The id of a scanned device*
+        "rawRssi": "-43"        *The current RSSI value of the scanned device*
+        },
+        ...
+    ]
 }
 ```
