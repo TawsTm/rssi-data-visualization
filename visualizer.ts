@@ -33,7 +33,7 @@ let datasetcolors: string[] = [];
         lower_y = config.coordinates.lower_y;
         upper_y = config.coordinates.upper_y;
 
-        for (const [key, value] of Object.entries(config.datasets)) {
+        for (const value of Object.values(config.datasets)) {
             const object: Dataset = <Dataset>value;
             datasetalgos.push(object.algorithm);
             datasettype.push(object.type);
@@ -169,7 +169,7 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
         .data(points_data)
         .enter()
         .append("circle")
-        .attr("fill", function (d: number[]) {
+        .attr("fill", function () {
         // color could be changed for different x and y values (gettable with d[0] and d[1])
         return _color;
     })
@@ -298,7 +298,6 @@ function friisTransmissionEquation(_rssi: number): number {
  * @returns the converted RSSI-Value
  */
 function logDistancePathLossModel(_rssi: number, _n: number = 2.25): number {
-    console.log(_n);
     return Math.exp(-(( _rssi *Math.log(10)/(10*_n))));
 }
 
