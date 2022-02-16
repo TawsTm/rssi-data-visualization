@@ -11,6 +11,8 @@ let datasetname: string[] = [];
 let datasetalgos: string[] = [];
 let datasettype: string[] = [];
 let datasetcolors: string[] = [];
+let deltaquantity: number[] = [];
+let deltathreshold: number[] = [];
 
 /**
  * This function runs at the start of the script, loads the config and draws the graph if valid data is provided.
@@ -39,14 +41,23 @@ let datasetcolors: string[] = [];
             datasettype.push(object.type);
             datasetcolors.push(object.color);
             datasetname.push(object.fileName);
+            if(object.deltacorrection) {
+                deltaquantity.push(object.deltacorrection.quantity);
+                deltathreshold.push(object.deltacorrection.threshold);
+            } else {
+                deltaquantity.push(0);
+                deltathreshold.push(0);
+            }
             data.push(await fetchDataSet(object.fileName));
         }
 
         let pl_exp: number = config.pl_exp; // Path loss exponent
-
-        if(data) {
+        if(data[0]) {
             data.forEach((dataset: number[][], i) => {
                 let convertedData: number[][] = linearConversion(dataset, datasetalgos[i], pl_exp);
+                if(deltaquantity[i] > 0) {
+                    convertedData = deltaCorrect(convertedData, deltaquantity[i], deltathreshold[i]);
+                }
                 drawGraph(convertedData, datasetcolors[i], datasettype[i]);
                 drawDataInfo(datasetname[i], datasetalgos[i], datasetcolors[i], datasettype[i]);
             });
@@ -58,11 +69,11 @@ let datasetcolors: string[] = [];
     }
 
     drawGraph([]);
-    
 })();
 
 /**
  * fetches a data file and returns the value of this file
+ * 
  * @param _fileName the name of the file that needs to be fetched
  * @returns the extraced data of the given data file
  */
@@ -75,6 +86,7 @@ async function fetchDataSet(_fileName: string): Promise<number[][]> {
 
 /**
  * Handle errors of fetch
+ * 
  * @param response gives information over the response status
  * @returns the response as data
  */
@@ -91,6 +103,7 @@ let coordinateSystemPresent = false; // So the coordinate System is drawn only o
 // https://www.d3-graph-gallery.com/graph/area_lineDot.html
 /**
  * draws the given data on an svg with id=digram
+ * 
  * @param _data the coordinates of the data points that need to be drawn
  * @param _color the color of the datapoints that will be drawn
  * @param _type how the data should be presented
@@ -183,6 +196,7 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
 
 /**
  * This function draws information about every Graph that is send.
+ * 
  * @param _name the file name of the data
  * @param _algo the algorithm that was used
  * @param _color the color in the graph
@@ -211,6 +225,7 @@ function drawDataInfo(_name: string, _algo: string, _color: string = 'rgba(0,0,0
 
 /**
  * Averages Points that are vertically on the same height.
+ * 
  * @param _points The list of points that need to be averaged
  * @returns a new list with one average point for every given x-Value
  */
@@ -232,6 +247,7 @@ function averagePoints(_points: number[][]): number[][] {
 
 /**
  * averages a list of numbers to one number
+ * 
  * @param _numbers the numbers that need to be averaged
  * @returns the average of all given numbers
  */
@@ -241,6 +257,7 @@ function average(_numbers: number[]): number {
 
 /**
  * Corrects the RSSI-Signal to linear mapping
+ * 
  * @param _data the coordinates that need to be converted to a linear scale
  * @param _algo is the converting algorithm that will be used
  * @returns the data points converted to linear mapping
@@ -273,6 +290,7 @@ function linearConversion(_data: number[][], _algo: string = 'none', _pl_exp: nu
 // Friis Transmission Equation after https://www.slideshare.net/khvardhan3/friis-formula S.4.
 /**
  * Converts RSSI-Values to a linear representation with help of the Friis Transmission Equation
+ * 
  * @param _rssi the RSSI-Value that is converted
  * @returns the converted RSSI-Value
  */
@@ -285,7 +303,8 @@ function friisTransmissionEquation(_rssi: number): number {
 }
 
 /**
- * A linear conversion Model with 
+ * A linear conversion Model
+ * 
  * @param _rssi the RSSI-Value that is converted
  * @param _n path loss exponent depending on the surrounding environment
  * The path loss exponent for different environments after Haithem Elehesseawy and Lamiaa Riad
@@ -301,10 +320,81 @@ function logDistancePathLossModel(_rssi: number, _n: number = 2.25): number {
     return Math.exp(-(( _rssi *Math.log(10)/(10*_n))));
 }
 
+/**
+ * This Funktion takes a list of datapoints and uses deltacorrection on them
+ * 
+ * @param _data the list of all datapoints
+ * @param _number the number of datapoints that should be taken into account
+ * @param _threshold the threshold that is acceptable
+ * @returns an array with all datapoints that are accepted by the deltacorrection
+ */
+function deltaCorrect(_data: number[][], _number: number, _threshold: number): number[][] {
+    let newData: number[][] = [];
+    _data.forEach((rssi, index) => {
+        let rssiList = [];
+        if(index > _number) {
+            for (let j = index - _number; j < index; j++) {
+                rssiList.push(_data[j]);
+            }
+        } else {
+            for (let j = 0; j < index; j++) {
+                rssiList.push(_data[j]);
+            }
+        }
+        if(index === 0) {
+            newData.push(rssi);
+        } else if(calculateDelta(rssiList, rssi[1], _threshold)) {
+            newData.push(rssi);
+        }
+    });
+    console.log("Länge nach Delta: " + newData.length);
+    return newData;
+}
+
+/**
+ * This function calculates a delta which determines if the next incoming RSSI-Value is valid or to far of.
+ * Principle of Jun Ho S.13-14.
+ * Should take the linear RSSI to better determine the average.
+ *
+ * @param _rssiList The List of the last n RSSI Values in linear representation.
+ * @param _rssi The new RSSI value that needs to be checked.
+ * @returns _rssi is valid (true) or not (false).
+ */
+function calculateDelta(_rssiList: number[][], _rssi: number, _threshold: number): boolean {
+    const threshold = _threshold;
+    const deltaList = [];
+
+    for (let i = 0; i < _rssiList.length - 2; i++) {
+        const delta = (_rssiList[i+1][1] - _rssiList[i][1]);
+        deltaList.push(delta);
+    }
+    let averageDelta = 0;
+    deltaList.forEach(element => {
+        averageDelta += element;
+    });
+    averageDelta = averageDelta/deltaList.length;
+    if(averageDelta === 0) {
+        console.log('Der Average war 0');
+    }
+    const currentDelta = _rssi - _rssiList[_rssiList.length - 1][1];
+    const deltaRatio = Math.abs(currentDelta/averageDelta);
+    let effective: boolean;
+    if(deltaRatio < threshold) {
+        effective = true;
+    } else {
+        effective = false;
+    }
+    return effective;
+}
+
 // The information that should be provided for a dataset in the config.json
 interface Dataset {
     fileName: string;
     algorithm: string;
     type: string;
     color: string;
+    deltacorrection: {
+        quantity: number,
+        threshold: number
+    };
 }

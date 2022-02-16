@@ -42,7 +42,11 @@ You can change the settings of the tool in the config.json:
             "fileName": "data.json",                *the filename of the data*
             "algorithm": "none",                    *specifies the algorithm for linear representation: 'friis', 'none'*
             "type": "rawdata",                      *specifies how the data is displayed: 'rawdata', 'average', 'line*
-            "color": "rgba(0,0,0,0.2)"              *specifies the color in which the datapoints are presented*
+            "color": "rgba(0,0,0,0.2)",             *specifies the color in which the datapoints are presented*
+            "deltacorrection": {                    *all deltacorrection options*
+                "quantity": "20",                   *specifies how many values should be taken into account*
+                "threshold": "1"                    *specifies how big the margin for change of delta should be*
+            }
         },
         ...
     },
