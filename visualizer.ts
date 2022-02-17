@@ -317,7 +317,7 @@ function friisTransmissionEquation(_rssi: number): number {
  * @returns the converted RSSI-Value
  */
 function logDistancePathLossModel(_rssi: number, _n: number = 2.25): number {
-    return Math.exp(-(( _rssi *Math.log(10)/(10*_n))));
+    return Math.exp(-(((_rssi+40.05)*Math.log(10))/(10*_n)));
 }
 
 /**
