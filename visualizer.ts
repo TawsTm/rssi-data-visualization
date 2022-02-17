@@ -54,6 +54,9 @@ let deltathreshold: number[] = [];
         let pl_exp: number = config.pl_exp; // Path loss exponent
         if(data[0]) {
             data.forEach((dataset: number[][], i) => {
+                if(config.correct127s) {
+                    dataset = correct127s(dataset);
+                }
                 let convertedData: number[][] = linearConversion(dataset, datasetalgos[i], pl_exp);
                 if(deltaquantity[i] > 0) {
                     convertedData = deltaCorrect(convertedData, deltaquantity[i], deltathreshold[i]);
@@ -221,6 +224,17 @@ function drawDataInfo(_name: string, _algo: string, _color: string = 'rgba(0,0,0
     newInfoContainer.appendChild(newDataInfos);
     
     infoField.appendChild(newInfoContainer);
+}
+
+// This function coorects given 127 values out of the data
+function correct127s(_data: number[][]): number[][] {
+    let newData: number[][] = [];
+    _data.forEach(data => {
+        if(data[1] !== 127) {
+            newData.push(data);
+        }
+    });
+    return newData;
 }
 
 /**

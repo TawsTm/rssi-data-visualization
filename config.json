@@ -1,36 +1,37 @@
 {
     "coordinates": {
-        "left_x": "0",
-        "right_x": "1000",
-        "upper_y": "4000",
-        "lower_y": "0"
+        "left_x": 0,
+        "right_x": 250,
+        "upper_y": 5,
+        "lower_y": 0
     },
     "measurements": {
-        "quantity": "100",
-        "time_per_scan": "200"
+        "quantity": 100,
+        "time_per_scan": 200
     },
     "datasets": {
         "dataset1": {
-            "fileName": "data.json",
+            "fileName": "data0.json",
             "algorithm": "logdpl",
-            "type": "average",
+            "type": "line",
             "color": "rgba(0,255,0,1)",
             "deltacorrection": {
-                "quantity": "0",
-                "threshold": "1"
+                "quantity": 5,
+                "threshold": 0.5
             }
         },
         "dataset2": {
-            "fileName": "data.json",
+            "fileName": "data0.json",
             "algorithm": "logdpl",
-            "type": "average",
+            "type": "line",
             "color": "rgba(255,0,255,1)",
             "deltacorrection": {
-                "quantity": "20",
-                "threshold": "1"
+                "quantity": 10,
+                "threshold": 1
             }
         }
     },
-    "pl_exp": "2.25",
-    "port": "3031"
+    "pl_exp": 2.25,
+    "correct127s": true,
+    "port": 3031
 }

@@ -28,14 +28,14 @@ You can change the settings of the tool in the config.json:
 ```
 {
     "coordinates": {                                
-        "min_x": "0",                               *specifies the left end of the x-Axis*
-        "max_x": "200",                             *specifies the right end of the x-Axis*
-        "min_y": "-80",                             *specifies the upper end of the y-Axis*
-        "max_y": "0"                                *specifies the lower end of the y-Axis*
+        "min_x": 0,                                 *specifies the left end of the x-Axis*
+        "max_x": 200,                               *specifies the right end of the x-Axis*
+        "min_y": -80,                               *specifies the upper end of the y-Axis*
+        "max_y": 0                                  *specifies the lower end of the y-Axis*
     },
     "measurements": {
-        "quantity": "30",                           *specifies how many measures are taken*
-        "time_per_scan": "500"                      *time between measurements in ms*
+        "quantity": 30,                           *specifies how many measures are taken*
+        "time_per_scan": 500                      *time between measurements in ms*
     },
     "datasets": {                                   *more datasets then one can be displayed*
         "dataset1": {                               *specifies which dataset is displayed and written to*
@@ -44,14 +44,15 @@ You can change the settings of the tool in the config.json:
             "type": "rawdata",                      *specifies how the data is displayed: 'rawdata', 'average', 'line*
             "color": "rgba(0,0,0,0.2)",             *specifies the color in which the datapoints are presented*
             "deltacorrection": {                    *all deltacorrection options*
-                "quantity": "20",                   *specifies how many values should be taken into account*
-                "threshold": "1"                    *specifies how big the margin for change of delta should be*
+                "quantity": 20,                   *specifies how many values should be taken into account (at least 3)*
+                "threshold": 1                    *specifies how big the margin for change of delta should be*
             }
         },
         ...
     },
-    "pl_exp": "2.25",                               *specifies the path loss exponent that should be adjusted to the surroundings*
-    "port": "8181"                                  *specifies the Port for visual presentation. Defaults to 8181*
+    "pl_exp": 2.25,                               *specifies the path loss exponent that should be adjusted to the surroundings*
+    "correct127s": true,                            *specifies if data with value 127 should be ignored* 
+    "port": 8181                                  *specifies the Port for visual presentation. Defaults to 8181*
 }
 ```
 
