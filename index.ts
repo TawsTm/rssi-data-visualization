@@ -89,7 +89,10 @@ async function question() {
 
 // Measurement Timing
 async function measure(_distance: number) {
-  let dataset: number[][] = [];
+  let datasets: number[][][] = [];
+  deviceList.forEach(device => {
+    datasets.push([]);
+  });
   for (let i = 0; i < quantity; i++) {
     await new Promise(r => setTimeout(r, timing));
     let string = '\rTaking Measurements';
@@ -102,23 +105,28 @@ async function measure(_distance: number) {
     }
     process.stdout.write(string);
     // The RSSI is pushed after "timing"-milliseconds.
-    dataset.push([_distance, deviceList[0].foundDevices[0].rawRssi]);
+    deviceList.forEach((device, i) => {
+      datasets[i].push([_distance, device.foundDevices[0].rawRssi]);
+    });
   }
-  dataToLog(dataset);
+  datasets.forEach((dataset, index) => {
+    dataToLog(dataset, index);
+  });
+  
   process.stdout.write('\rMeasurements are completed!\n');
   rl.close();
   question();
 }
 
 // Writes the scanned Data to data.json
-async function dataToLog(_set: number[][]) {
+async function dataToLog(_set: number[][], _index: number) {
 
   let rawdata: Buffer;
   try {
-    rawdata = await fs.readFileSync('data/data.json');
+    rawdata = await fs.readFileSync('data/data' + _index + '.json');
   } catch (err) {
     // if there is no file found to be read, a new file is created.
-    console.log('creating new data file...');
+    console.log('creating new data file data' + _index + '.json...');
   }
   if(rawdata && rawdata.toString() !== '') { // If a data file is found
     let pastData = JSON.parse(rawdata.toString());
@@ -129,7 +137,7 @@ async function dataToLog(_set: number[][]) {
       });
       // If new data is written, sort it by x-Value
       pastData.sort((a, b) => a[0] - b[0]);
-      fs.writeFile('data/data.json', JSON.stringify(pastData), err => {
+      fs.writeFile('data/data' + _index + '.json', JSON.stringify(pastData), err => {
         if (err) {
           console.error(err);
           return;
@@ -137,7 +145,7 @@ async function dataToLog(_set: number[][]) {
       });
     }
   } else { // The case that data.json is empty or doesn't exist
-    fs.appendFile('data/data.json', JSON.stringify(_set) + '\n', err => {
+    fs.appendFile('data/data' + _index + '.json', JSON.stringify(_set) + '\n', err => {
       if (err) {
         console.error(err);
         return;
