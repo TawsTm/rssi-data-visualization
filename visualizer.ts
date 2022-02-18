@@ -154,12 +154,29 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
         svg
             .append("g")
             .attr("transform", "translate(0," + (height - MARGINY) + ")") // This controls the vertical position of the Axis
-            .call(axisBot.ticks(5).tickSizeOuter(0));
+            .call(axisBot.ticks(25).tickSizeOuter(0));
+
         const axisLeft = d3.axisLeft(y);
         svg
             .append("g")
             .attr("transform", "translate(" + MARGINX + ",0)") // This controls the vertical position of the Axis
             .call(axisLeft.ticks(5).tickSizeOuter(0));
+
+        svg.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", width-MARGINX)
+            .attr("y", height - MARGINY + 40)
+            .text("actual distance (centimeter)");
+
+        svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("x", -MARGINY)
+            .attr("y", MARGINX - 40)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("RSSI");
     }
 
     // If the selected Type is line a line from every average point is drawn

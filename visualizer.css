@@ -56,3 +56,6 @@ svg {
 .visible.link, .visible.indicator {
   visibility: visible;
 }
+.label{
+  font-family: Arial, Helvetica, sans-serif;
+}
