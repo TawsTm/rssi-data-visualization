@@ -90,9 +90,9 @@ async function question() {
 // Measurement Timing
 async function measure(_distance: number) {
   let datasets: number[][][] = [];
-  deviceList.forEach(device => {
-    datasets.push([]);
-  });
+  deviceList.forEach(dataset => 
+    datasets.push([])
+  );
   for (let i = 0; i < quantity; i++) {
     await new Promise(r => setTimeout(r, timing));
     let string = '\rTaking Measurements';

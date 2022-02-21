@@ -129,7 +129,21 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
         default:
             points_data = _data;
             break;
-    }
+    };
+
+    // For Interference display
+    /*let kol: string = "";
+    for (let i = 0; i < 251; i+=1) {
+        const heighti = 1.15;
+        const distance = i/100;
+        const abstandGerade = distance/0.125;
+        const abstandQuer = (Math.sqrt(Math.pow(heighti,2) + Math.pow(distance/2,2))*2)/0.125;
+        let interference = ((Math.abs((abstandQuer-abstandGerade)))*2*Math.PI)%(2*Math.PI);
+        interference = Math.abs(interference-Math.PI);
+        interference = interference - 45;
+        kol += ("["+i+","+ interference+"],");
+    };
+    console.log(kol);*/
 
     // The svg that is selected from the HTML page
     svg = d3.select('#diagram');
@@ -150,13 +164,23 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
     x = d3.scaleLinear().domain([left_x, right_x]).range([MARGINX, width - MARGINX]);
     y = d3.scaleLinear().domain([upper_y, lower_y]).range([MARGINY, height - MARGINY]);
     if(!coordinateSystemPresent){
-        const axisBot = d3.axisBottom(x);
-        svg
-            .append("g")
-            .attr("transform", "translate(0," + (height - MARGINY) + ")") // This controls the vertical position of the Axis
-            .call(axisBot.ticks(25).tickSizeOuter(0));
+        let axisBotTop: any;
+        if(upper_y <= 0) {
+            axisBotTop = d3.axisTop(x);
+            svg
+                .append("g")
+                .attr("transform", "translate(0," + MARGINY + ")") // This controls the vertical position of the Axis
+                .call(axisBotTop.ticks(25).tickSizeOuter(0));
+        } else {
+            axisBotTop = d3.axisBottom(x);
+            svg
+                .append("g")
+                .attr("transform", "translate(0," + (height-MARGINY) + ")") // This controls the vertical position of the Axis
+                .call(axisBotTop.ticks(25).tickSizeOuter(0));
+        }
 
         const axisLeft = d3.axisLeft(y);
+        
         svg
             .append("g")
             .attr("transform", "translate(" + MARGINX + ",0)") // This controls the vertical position of the Axis
@@ -166,7 +190,12 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
             .attr("class", "x label")
             .attr("text-anchor", "end")
             .attr("x", width-MARGINX)
-            .attr("y", height - MARGINY + 40)
+            .attr("y", function() {
+                if(upper_y <= 0) {
+                    return MARGINY - 40
+                } 
+                return height - MARGINY + 40
+            })
             .text("actual distance (centimeter)");
 
         svg.append("text")
@@ -176,7 +205,7 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
             .attr("y", MARGINX - 40)
             .attr("dy", ".75em")
             .attr("transform", "rotate(-90)")
-            .text("RSSI");
+            .text("LDPL(RSSI) (meter)");
     }
 
     // If the selected Type is line a line from every average point is drawn
@@ -396,7 +425,7 @@ function calculateDelta(_rssiList: number[][], _rssi: number, _threshold: number
     const deltaList = [];
 
     for (let i = 0; i < _rssiList.length - 2; i++) {
-        const delta = (_rssiList[i+1][1] - _rssiList[i][1]);
+        const delta = Math.abs(_rssiList[i+1][1] - _rssiList[i][1]);
         deltaList.push(delta);
     }
     let averageDelta = 0;
@@ -407,7 +436,7 @@ function calculateDelta(_rssiList: number[][], _rssi: number, _threshold: number
     if(averageDelta === 0) {
         console.log('Der Average war 0');
     }
-    const currentDelta = _rssi - _rssiList[_rssiList.length - 1][1];
+    const currentDelta = Math.abs(_rssi - _rssiList[_rssiList.length - 1][1]);
     const deltaRatio = Math.abs(currentDelta/averageDelta);
     let effective: boolean;
     if(deltaRatio < threshold) {
