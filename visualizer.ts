@@ -122,8 +122,15 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
         case 'average':
             points_data = averagePoints(_data);
             break;
-        case 'line':
+        case 'median':
+            points_data = medianPoints(_data);
+            break;
+        case 'averageLine':
             points_data = averagePoints(_data);
+            line = true;
+            break;
+        case 'medianLine':
+            points_data = medianPoints(_data);
             line = true;
             break;
         default:
@@ -134,10 +141,11 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
     // For Interference display
     /*let kol: string = "";
     for (let i = 0; i < 251; i+=1) {
-        const heighti = 1.15;
+        const heighti = 1.12;
         const distance = i/100;
-        const abstandGerade = distance/0.125;
-        const abstandQuer = (Math.sqrt(Math.pow(heighti,2) + Math.pow(distance/2,2))*2)/0.125;
+        const wavelength = 0.121;
+        const abstandGerade = distance/wavelength;
+        const abstandQuer = (Math.sqrt(Math.pow(heighti,2) + Math.pow(distance/2,2))*2)/wavelength;
         let interference = ((Math.abs((abstandQuer-abstandGerade)))*2*Math.PI)%(2*Math.PI);
         interference = Math.abs(interference-Math.PI);
         interference = interference - 45;
@@ -176,7 +184,7 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
             svg
                 .append("g")
                 .attr("transform", "translate(0," + (height-MARGINY) + ")") // This controls the vertical position of the Axis
-                .call(axisBotTop.ticks(25).tickSizeOuter(0));
+                .call(axisBotTop.ticks(15).tickSizeOuter(0));
         }
 
         const axisLeft = d3.axisLeft(y);
@@ -184,7 +192,7 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
         svg
             .append("g")
             .attr("transform", "translate(" + MARGINX + ",0)") // This controls the vertical position of the Axis
-            .call(axisLeft.ticks(5).tickSizeOuter(0));
+            .call(axisLeft.ticks(4).tickSizeOuter(0));
 
         svg.append("text")
             .attr("class", "x label")
@@ -201,11 +209,15 @@ function drawGraph(_data: number[][], _color: string = 'rgba(0,0,0,0.2)', _type:
         svg.append("text")
             .attr("class", "y label")
             .attr("text-anchor", "end")
-            .attr("x", -MARGINY)
+            .attr("x", function() {
+                if(upper_y <= 0) {
+                    return -height + MARGINY + 60
+                } 
+                return -MARGINY})
             .attr("y", MARGINX - 40)
             .attr("dy", ".75em")
             .attr("transform", "rotate(-90)")
-            .text("LDPL(RSSI) (meter)");
+            .text("LDPL[RSSI] (meter)");
     }
 
     // If the selected Type is line a line from every average point is drawn
@@ -284,7 +296,7 @@ function correct127s(_data: number[][]): number[][] {
 }
 
 /**
- * Averages Points that are vertically on the same height.
+ * Averages Points for datasets on the same x-Value.
  * 
  * @param _points The list of points that need to be averaged
  * @returns a new list with one average point for every given x-Value
@@ -314,6 +326,49 @@ function averagePoints(_points: number[][]): number[][] {
 function average(_numbers: number[]): number {
     return _numbers.reduce((a, b) => (a + b)) / _numbers.length;
 }
+
+/**
+ * Median Points for datasets on the same x-Value.
+ * 
+ * @param _points The list of points that need medians
+ * @returns a new list with one median point for every given x-Value
+ */
+ function medianPoints(_points: number[][]): number[][] {
+    let newPoints: number[][] = [];
+    while (_points.length > 0) {
+        let newY: number[] = [];
+        let currentX = _points[0][0];
+        for (let j = 0; j < _points.length; j++) {
+            if(_points[j][0] === currentX) {
+                newY.push(_points.splice(j, 1)[0][1]);
+                j--;
+            }
+        }
+        newPoints.push([currentX, median(newY)])
+    };
+    return newPoints
+}
+
+/**
+ * returns the median of a list of numbers
+ * 
+ * @param _numbers the list of numbers
+ * @returns the median of all given numbers
+ */
+function median(_numbers: number[]){
+    if(_numbers.length ===0) throw new Error("No inputs");
+  
+    _numbers.sort(function(a,b){
+      return a-b;
+    });
+  
+    var half = Math.floor(_numbers.length / 2);
+    
+    if (_numbers.length % 2)
+      return _numbers[half];
+    
+    return (_numbers[half - 1] + _numbers[half]) / 2.0;
+  }
 
 /**
  * Corrects the RSSI-Signal to linear mapping
