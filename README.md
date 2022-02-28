@@ -1,7 +1,7 @@
 # rssi-data-visualization
 
 This tool is meant to visualize measurement-data of RSSI based systems. A device can be connected to the Tool via Websocket over tunnel `https://blebeacon.loca.lt`, which will open a socket at port 3030.
-A BLE-application which provides the correct data-format can be found at [BleBeacon](https://pages.github.com/TawsTM). You can also visualize existing data files.
+A BLE-application which provides the correct data-format can be found at [BleBeacon](https://github.com/TawsTm/BleServer). You can also visualize existing data files.
 
 ## Installation
 
@@ -40,8 +40,8 @@ You can change the settings of the tool in the config.json:
     "datasets": {                                   *more datasets then one can be displayed*
         "dataset1": {                               *specifies which dataset is displayed and written to*
             "fileName": "data.json",                *the filename of the data*
-            "algorithm": "none",                    *specifies the algorithm for linear representation: 'logdpl', 'friis', 'none'*
-            "type": "rawdata",                      *specifies how the data is displayed: 'rawdata', 'average', 'median, 'averageLine', 'medianLine'*
+            "algorithm": "none",                    *specifies the algorithm for linear representation: 'logdpl', 'friis', 'interferenceCorrection', 'none'*
+            "type": "rawdata",                      *specifies how the data is displayed: 'rawdata', 'boxplot', 'average', 'median, 'averageLine', 'medianLine'*
             "color": "rgba(0,0,0,0.2)",             *specifies the color in which the datapoints are presented*
             "deltacorrection": {                    *all deltacorrection options*
                 "quantity": 20,                     *specifies how many values should be taken into account (at least 3)*
